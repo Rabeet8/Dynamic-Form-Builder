@@ -10,6 +10,8 @@ import {
   IconButton,
   Box,
   Button,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import {
   TextFields,
@@ -20,6 +22,9 @@ import {
   Phone,
   Upload,
   Delete,
+  ViewStream,
+  Add,
+  MoreVert,
 } from "@mui/icons-material";
 
 // Import your custom components
@@ -59,7 +64,25 @@ const FinalFormPreview = styled(Paper)({
   overflowY: "auto",
 });
 
+const SectionWrapper = styled(Box)(({ depth = 0 }) => ({
+  border: "1px solid #e0e0e0",
+  borderRadius: "4px",
+  padding: "16px",
+  marginBottom: "16px",
+  backgroundColor: depth % 2 === 0 ? "#fafafa" : "#ffffff",
+  marginLeft: `${depth * 16}px`,
+}));
+
 const componentTypes = {
+  section: {
+    type: "section",
+    icon: <ViewStream />,
+    label: "Section",
+    defaultProps: {
+      label: "New Section",
+      fields: [],
+    },
+  },
   textField: {
     type: "textField",
     icon: <TextFields />,
@@ -134,9 +157,43 @@ const componentTypes = {
     component: CustomFileUpload,
     defaultProps: {
       label: "Upload File",
-      value: "", // Initialize with empty string
+      value: "",
     },
   },
+};
+
+const SectionActions = ({ onAddField, onAddSection, onDelete }) => {
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleAction = (action) => {
+    handleClose();
+    action();
+  };
+
+  return (
+    <>
+      <IconButton onClick={handleClick}>
+        <Add />
+      </IconButton>
+      <IconButton onClick={onDelete} className="text-red-500 hover:bg-red-50">
+        <Delete />
+      </IconButton>
+      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
+        <MenuItem onClick={() => handleAction(onAddField)}>Add Field</MenuItem>
+        <MenuItem onClick={() => handleAction(onAddSection)}>
+          Add Sub-section
+        </MenuItem>
+      </Menu>
+    </>
+  );
 };
 
 const FormBuilder = () => {
@@ -147,44 +204,131 @@ const FormBuilder = () => {
   const [validationStatus, setValidationStatus] = useState({});
   const [visibilityConditions, setVisibilityConditions] = useState({});
 
-  const generateId = () => `field_${Date.now()}`;
+  const generateId = () =>
+    `field_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-  // Add a new field with optional visibility condition
-  const addField = (type, condition = null) => {
+  const findAndUpdateField = (fields, targetId, updater) => {
+    return fields.map((field) => {
+      if (field.id === targetId) {
+        return updater(field);
+      }
+      if (field.type === "section" && field.fields) {
+        return {
+          ...field,
+          fields: findAndUpdateField(field.fields, targetId, updater),
+        };
+      }
+      return field;
+    });
+  };
+
+  const findAndRemoveField = (fields, targetId) => {
+    return fields.reduce((acc, field) => {
+      if (field.id === targetId) {
+        return acc;
+      }
+      if (field.type === "section" && field.fields) {
+        return [
+          ...acc,
+          {
+            ...field,
+            fields: findAndRemoveField(field.fields, targetId),
+          },
+        ];
+      }
+      return [...acc, field];
+    }, []);
+  };
+
+  const addField = (type, parentId = null) => {
     const newField = {
       id: generateId(),
       ...componentTypes[type],
-      condition, // Add the condition to control visibility
+      parentId,
     };
-    setFormFields([...formFields, newField]);
+
+    if (type === "section") {
+      newField.fields = [];
+    }
+
+    if (!parentId) {
+      setFormFields((prev) => [...prev, newField]);
+      return;
+    }
+
+    setFormFields((prev) =>
+      findAndUpdateField(prev, parentId, (field) => ({
+        ...field,
+        fields: [...(field.fields || []), newField],
+      }))
+    );
   };
 
   const removeField = (id) => {
-    setFormFields(formFields.filter((field) => field.id !== id));
+    setFormFields((prev) => findAndRemoveField(prev, id));
     if (selectedField?.id === id) {
       setSelectedField(null);
     }
   };
 
   const handleFinalFormChange = (id, value) => {
-    setFinalFormData((prevData) => ({
-      ...prevData,
+    setFinalFormData((prev) => ({
+      ...prev,
       [id]: value,
     }));
-
-    // Check conditions for showing or hiding fields
-    updateFieldVisibility(id, value);
   };
 
-  const updateFieldVisibility = (fieldId, value) => {
-    setFormFields((prevFields) =>
-      prevFields.map((field) => {
-        if (field.condition && field.condition.fieldId === fieldId) {
-          const shouldShow = field.condition.check(value);
-          return { ...field, isVisible: shouldShow };
-        }
-        return field;
-      })
+  const renderField = (field, depth = 0) => {
+    if (field.type === "section") {
+      return (
+        <SectionWrapper key={field.id} depth={depth}>
+          <Box className="flex items-center justify-between mb-4">
+            <Typography variant="h6">{field.label}</Typography>
+            <Box>
+              <SectionActions
+                onAddField={() => addField("textField", field.id)}
+                onAddSection={() => addField("section", field.id)}
+                onDelete={() => removeField(field.id)}
+              />
+            </Box>
+          </Box>
+          <Box className="ml-4">
+            {field.fields?.map((nestedField) =>
+              renderField(nestedField, depth + 1)
+            )}
+          </Box>
+        </SectionWrapper>
+      );
+    }
+
+    return (
+      <Box
+        key={field.id}
+        onClick={() => setSelectedField(field)}
+        className={`p-2 my-2 rounded-lg transition-all duration-200 ${
+          selectedField?.id === field.id ? "bg-blue-50" : ""
+        }`}
+      >
+        <Box className="flex items-center justify-between mb-2">
+          <Typography variant="subtitle2">{field.label}</Typography>
+          <IconButton
+            size="small"
+            onClick={() => removeField(field.id)}
+            className="text-red-500 hover:bg-red-50"
+          >
+            <Delete />
+          </IconButton>
+        </Box>
+        {field.component &&
+          React.createElement(field.component, {
+            ...field.defaultProps,
+            value: finalFormData[field.id] || field.defaultProps.value,
+            onChange: (value) => handleFinalFormChange(field.id, value),
+            error: !validationStatus[field.id],
+            onValidationChange: (isValid) =>
+              handleValidationChange(field.id, isValid),
+          })}
+      </Box>
     );
   };
 
@@ -218,6 +362,27 @@ const FormBuilder = () => {
     });
   };
 
+  const collectFormValues = (fields, prefix = "") => {
+    return fields.reduce((acc, field) => {
+      if (field.type === "section") {
+        const sectionValues = collectFormValues(
+          field.fields || [],
+          `${prefix}${field.label} / `
+        );
+        return { ...acc, ...sectionValues };
+      }
+
+      const value = finalFormData[field.id];
+      if (value !== undefined && value !== "") {
+        return {
+          ...acc,
+          [`${prefix}${field.label}`]: formatFieldValue(field, value),
+        };
+      }
+      return acc;
+    }, {});
+  };
+
   const handleSubmit = () => {
     const isFormValid = Object.values(validationStatus).every(
       (status) => status !== false
@@ -233,14 +398,7 @@ const FormBuilder = () => {
       return;
     }
 
-    const formValues = {};
-    formFields.forEach((field) => {
-      const userValue = finalFormData[field.id];
-      if (userValue !== undefined && userValue !== "") {
-        // For file uploads, we already have the file name stored
-        formValues[field.label] = formatFieldValue(field, userValue);
-      }
-    });
+    const formValues = collectFormValues(formFields);
     setSubmittedData(formValues);
   };
 
@@ -269,31 +427,7 @@ const FormBuilder = () => {
         <Typography variant="h6" gutterBottom>
           Form Builder
         </Typography>
-        {formFields.map((field) => (
-          <Box
-            key={field.id}
-            onClick={() => setSelectedField(field)}
-            className={`p-2 my-2 rounded-lg transition-all duration-200 ${
-              selectedField?.id === field.id ? "bg-blue-50" : ""
-            }`}
-          >
-            <Box className="flex items-center justify-between mb-2">
-              <Typography variant="subtitle2">{field.label}</Typography>
-              <IconButton
-                size="small"
-                onClick={() => removeField(field.id)}
-                className="text-red-500 hover:bg-red-50"
-              >
-                <Delete />
-              </IconButton>
-            </Box>
-            {React.createElement(field.component, {
-              ...field.defaultProps,
-              value: finalFormData[field.id] || field.defaultProps.value,
-              onChange: (value) => handleFinalFormChange(field.id, value),
-            })}
-          </Box>
-        ))}
+        {formFields.map((field) => renderField(field))}
         {formFields.length === 0 && (
           <Typography
             variant="body1"
@@ -309,23 +443,13 @@ const FormBuilder = () => {
         <Typography variant="h6" gutterBottom>
           Final Form Preview
         </Typography>
-        {formFields.map((field) => (
-          <Box key={field.id}>
-            {React.createElement(field.component, {
-              ...field.defaultProps,
-              value: finalFormData[field.id] || field.defaultProps.value,
-              onChange: (value) => handleFinalFormChange(field.id, value),
-              error: !validationStatus[field.id],
-              onValidationChange: (isValid) =>
-                handleValidationChange(field.id, isValid),
-            })}
-          </Box>
-        ))}
+        {formFields.map((field) => renderField(field))}
         <Button
           onClick={handleSubmit}
           variant="contained"
           color="primary"
           fullWidth
+          className="mt-4"
         >
           Submit Form
         </Button>
