@@ -1,7 +1,12 @@
 # Dynamic Form Builder
 
 ## Description
-A powerful and flexible React-based form builder that allows users to create complex, dynamic forms with nested sections, validation, and conditional logic. Built with Material-UI and modern React practices.
+A powerful and flexible React-based form builder that allows users to create complex, dynamic forms with nested sections, and custom validation. Built with Material-UI and modern React practices.
+
+## Video Demonstration
+
+https://github.com/user-attachments/assets/5c9a57cb-577f-4da8-8245-ec8329528f7c
+
 
 ## Features
 
@@ -19,9 +24,6 @@ A powerful and flexible React-based form builder that allows users to create com
 * **Nested Forms** - Create complex form structures with unlimited nesting
 * **Real-time Validation** - Validate form fields as users type
 * **Field Organization** - Intuitive interface for form layout
-* **Conditional Logic** - Show/hide fields based on other field values
-* **Data Preview** - Real-time preview of form data structure
-* **Responsive Design** - Works seamlessly on desktop and mobile devices
 
 ## Tech Stack
 * React.js
@@ -29,18 +31,14 @@ A powerful and flexible React-based form builder that allows users to create com
 * JavaScript (ES6+)
 * CSS-in-JS (Styled Components)
 
-## Prerequisites
-* Node.js (v14.0.0 or higher)
-* npm (v6.0.0 or higher)
-
 ## Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/dynamic-form-builder.git
+git clone(https://github.com/Rabeet8/Dynamic-Form-Builder.git)
 
 # Navigate to project directory
-cd dynamic-form-builder
+cd form-builder
 
 # Install dependencies
 npm install
@@ -61,75 +59,25 @@ npm start
 ### Creating Nested Forms
 1. Add a Section component to your form
 2. Use the section's menu to add fields or sub-sections
-3. Organize fields within sections as needed
-4. Preview the nested structure in the form preview
-
-### Setting Up Validation
-1. Select a field to configure
-2. Choose validation rules from the field properties panel
-3. Test validation by entering invalid data
-4. Observe real-time validation feedback
+3. Preview the nested structure in the form preview
 
 ## Project Structure
 
 ```
 src/
 ├── components/
-│   ├── FormBuilder/
-│   │   ├── index.js
-│   │   └── styles.js
 │   ├── CustomComponents/
-│   │   ├── CustomDropdown.js
-│   │   ├── CustomRadioButton.js
-│   │   ├── CustomCheckbox.js
-│   │   ├── CustomDatePicker.js
-│   │   ├── CountryPhoneInput.js
-│   │   └── CustomFileUpload.js
-│   └── UI/
-│       └── common UI components
-├── utils/
-│   ├── validation.js
-│   └── helpers.js
+│   │   ├── CustomDropdown.jsx
+│   │   ├── CustomRadioButton.jsx
+│   │   ├── CustomCheckbox.jsx
+│   │   ├── CustomDatePicker.jsx
+│   │   ├── CountryPhoneInput.jsx
+│   │   └── CustomFileUpload.jsx
+│   │   └── CustomTextField.jsx
+│   │   └── FormBuilder.jsx
+│   │   └── NestedField.jsx
+│   │   └── Section.jsx
 └── App.js
 ```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## To-Do
-- [ ] Add drag-and-drop field reordering
-- [ ] Implement form templates
-- [ ] Add form data export functionality
-- [ ] Enhance conditional logic UI
-- [ ] Add field duplication feature
-- [ ] Implement undo/redo functionality
-
-## Security
-
-* File uploads are restricted to safe file types
-* Form data is validated both client-side and server-side
-* Conditional logic is evaluated safely
-* User inputs are sanitized before processing
-
-## Known Issues
-* Phone input may need additional formatting for certain country codes
-* Date picker timezone handling needs improvement
-* Some validation rules may conflict in nested forms
-
-## License
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
-
 ## Author
-* Your Name - [GitHub](https://github.com/yourusername)
-
-## Support
-For support, please open an issue in the GitHub repository or contact [your-email@example.com](mailto:your-email@example.com)
-
----
-
-> **Note**: For more detailed documentation on specific features and components, please check the [Wiki](https://github.com/yourusername/dynamic-form-builder/wiki).
+[Syed Rabeet](https://github.com/Rabeet8)
