@@ -36,12 +36,12 @@ const CustomCheckbox = ({
   disabled,
   error,
   required,
-  onValidationChange, // New prop for validation status
+  onValidationChange, 
 }) => {
   const isChecked =
     typeof value === "string" ? value === "true" : Boolean(value);
 
-  // Validate on mount and value change
+  
   React.useEffect(() => {
     if (required && onValidationChange) {
       const isValid = isChecked;

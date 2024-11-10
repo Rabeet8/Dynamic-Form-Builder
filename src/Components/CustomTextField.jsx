@@ -2,7 +2,6 @@ import React from "react";
 import TextField from "@mui/material/TextField";
 import { styled } from "@mui/material/styles";
 
-// Create a styled wrapper div to control the width and spacing
 const TextFieldWrapper = styled("div")(({ theme }) => ({
   margin: theme.spacing(1),
   minWidth: "240px",
@@ -41,7 +40,6 @@ const CustomTextField = ({
   error,
   required,
   disabled,
-  onValidationChange, // Validation status callback
 }) => {
   const validateEmail = (input) => {
     if (required && !input) {
@@ -54,17 +52,6 @@ const CustomTextField = ({
     }
 
     return { isValid: true, error: "" };
-  };
-
-  const handleChange = (e) => {
-    const newValue = e.target.value;
-    const validation = validateEmail(newValue);
-
-    if (onValidationChange) {
-      onValidationChange(validation.isValid);
-    }
-
-    onChange(newValue);
   };
 
   const validation = validateEmail(value);

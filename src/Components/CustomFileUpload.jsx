@@ -62,7 +62,7 @@ const CustomFileUpload = ({
           ? `${files.length} files selected`
           : files[0].name;
         setFileName(newFileName);
-        // Pass the file name instead of the event
+        
         onChange(newFileName);
       }
     }

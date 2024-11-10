@@ -1,4 +1,3 @@
-// src/components/Section.js
 import React, { useState } from "react";
 import NestedField from "./NestedField";
 import Button from "@mui/material/Button";
@@ -19,7 +18,7 @@ const Section = ({ title, onSectionChange }) => {
       field.id === id ? { ...field, value } : field
     );
     setFields(updatedFields);
-    onSectionChange(title, updatedFields); // pass updated fields to parent
+    onSectionChange(title, updatedFields); 
   };
 
   return (

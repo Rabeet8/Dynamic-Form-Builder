@@ -24,10 +24,8 @@ import {
   Delete,
   ViewStream,
   Add,
-  MoreVert,
 } from "@mui/icons-material";
 
-// Import your custom components
 import CustomTextField from "./CustomTextField";
 import CustomDropdown from "./CustomDropdown";
 import CustomRadioButton from "./CustomRadioButton";
@@ -202,7 +200,6 @@ const FormBuilder = () => {
   const [submittedData, setSubmittedData] = useState({});
   const [selectedField, setSelectedField] = useState(null);
   const [validationStatus, setValidationStatus] = useState({});
-  const [visibilityConditions, setVisibilityConditions] = useState({});
 
   const generateId = () =>
     `field_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -450,6 +447,7 @@ const FormBuilder = () => {
           color="primary"
           fullWidth
           className="mt-4"
+          style={{ width: "200px" }}
         >
           Submit Form
         </Button>

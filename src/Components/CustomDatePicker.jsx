@@ -53,9 +53,9 @@ const CustomDatePicker = ({
   minDate,
   maxDate,
   disabled,
-  allowPastDates = false, // New prop to control past dates
-  allowFutureDates = true, // New prop to control future dates
-  onValidationChange, // New prop for validation status
+  allowPastDates = false, 
+  allowFutureDates = true, 
+  onValidationChange, 
 }) => {
   const selectedDate = value ? new Date(value) : null;
   const today = new Date();
