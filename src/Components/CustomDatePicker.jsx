@@ -46,20 +46,45 @@ const DatePickerWrapper = styled("div")(({ theme }) => ({
 }));
 
 const CustomDatePicker = ({
-  value, // Changed from selectedDate to value to match parent component
+  value,
   onChange,
-  dateFormat = "MM/dd/yyyy HH:mm", // Added time format
+  dateFormat = "MM/dd/yyyy HH:mm",
   placeholderText = "Select a date",
   minDate,
   maxDate,
   disabled,
+  allowPastDates = false, // New prop to control past dates
+  allowFutureDates = true, // New prop to control future dates
+  onValidationChange, // New prop for validation status
 }) => {
-  // Convert string date back to Date object if it exists
   const selectedDate = value ? new Date(value) : null;
+  const today = new Date();
+
+  const validateDate = (date) => {
+    if (!date) return true;
+
+    if (!allowPastDates && date < new Date().setHours(0, 0, 0, 0)) {
+      return false;
+    }
+
+    if (!allowFutureDates && date > new Date().setHours(23, 59, 59, 999)) {
+      return false;
+    }
+
+    return true;
+  };
 
   const handleDateChange = (date) => {
-    // Ensure we're passing the date object to parent
-    onChange(date);
+    if (validateDate(date)) {
+      onChange(date);
+      if (onValidationChange) {
+        onValidationChange(true);
+      }
+    } else {
+      if (onValidationChange) {
+        onValidationChange(false);
+      }
+    }
   };
 
   return (
@@ -69,10 +94,9 @@ const CustomDatePicker = ({
         onChange={handleDateChange}
         dateFormat={dateFormat}
         placeholderText={placeholderText}
-        minDate={minDate}
-        maxDate={maxDate}
+        minDate={!allowPastDates ? today : minDate}
+        maxDate={!allowFutureDates ? today : maxDate}
         disabled={disabled}
-        className="shadow-sm hover:shadow-md transition-shadow duration-200"
         showTimeSelect
         timeFormat="HH:mm"
         timeIntervals={15}

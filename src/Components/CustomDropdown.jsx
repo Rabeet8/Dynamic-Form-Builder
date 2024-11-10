@@ -46,28 +46,46 @@ const CustomDropdown = ({
   helperText,
   required,
   disabled,
-}) => (
-  <StyledDropdownWrapper>
-    <TextField
-      select
-      label={label}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      variant="outlined"
-      fullWidth
-      error={error}
-      helperText={helperText}
-      required={required}
-      disabled={disabled}
-      className="shadow-sm hover:shadow-md transition-shadow duration-200"
-    >
-      {options.map((option) => (
-        <MenuItem key={option.value} value={option.value}>
-          {option.label}
-        </MenuItem>
-      ))}
-    </TextField>
-  </StyledDropdownWrapper>
-);
+  onValidationChange, // New prop for validation status
+}) => {
+  React.useEffect(() => {
+    if (required && onValidationChange) {
+      const isValid = value !== undefined && value !== "";
+      onValidationChange(isValid);
+    }
+  }, [value, required, onValidationChange]);
+
+  return (
+    <StyledDropdownWrapper>
+      <TextField
+        select
+        label={
+          <span>
+            {label}
+            {required && (
+              <span style={{ color: error ? "#d32f2f" : "inherit" }}>*</span>
+            )}
+          </span>
+        }
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        variant="outlined"
+        fullWidth
+        error={error}
+        helperText={
+          error && required && !value ? "This field is required" : helperText
+        }
+        required={required}
+        disabled={disabled}
+      >
+        {options.map((option) => (
+          <MenuItem key={option.value} value={option.value}>
+            {option.label}
+          </MenuItem>
+        ))}
+      </TextField>
+    </StyledDropdownWrapper>
+  );
+};
 
 export default CustomDropdown;

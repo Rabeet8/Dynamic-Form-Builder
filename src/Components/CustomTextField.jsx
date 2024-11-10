@@ -41,23 +41,58 @@ const CustomTextField = ({
   error,
   required,
   disabled,
-  type = "text",
-}) => (
-  <TextFieldWrapper>
-    <TextField
-      label={label}
-      variant="outlined"
-      value={value || ""}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder={placeholder}
-      helperText={helperText}
-      error={error}
-      required={required}
-      disabled={disabled}
-      type={type}
-      fullWidth
-    />
-  </TextFieldWrapper>
-);
+  onValidationChange, // Validation status callback
+}) => {
+  const validateEmail = (input) => {
+    if (required && !input) {
+      return { isValid: false, error: "This field is required" };
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (input && !emailRegex.test(input)) {
+      return { isValid: false, error: "Invalid email format" };
+    }
+
+    return { isValid: true, error: "" };
+  };
+
+  const handleChange = (e) => {
+    const newValue = e.target.value;
+    const validation = validateEmail(newValue);
+
+    if (onValidationChange) {
+      onValidationChange(validation.isValid);
+    }
+
+    onChange(newValue);
+  };
+
+  const validation = validateEmail(value);
+
+  return (
+    <TextFieldWrapper>
+      <TextField
+        label={
+          <span>
+            {label}
+            {required && (
+              <span style={{ color: error ? "#d32f2f" : "inherit" }}>*</span>
+            )}
+          </span>
+        }
+        variant="outlined"
+        value={value || ""}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        helperText={error ? validation.error : helperText}
+        error={error || !validation.isValid}
+        required={required}
+        disabled={disabled}
+        type="email"
+        fullWidth
+      />
+    </TextFieldWrapper>
+  );
+};
 
 export default CustomTextField;

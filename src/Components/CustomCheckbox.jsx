@@ -31,18 +31,25 @@ const CheckboxWrapper = styled("div")(({ theme }) => ({
 
 const CustomCheckbox = ({
   label,
-  value, // Changed from checked to value to match parent component
+  value,
   onChange,
   disabled,
   error,
   required,
+  onValidationChange, // New prop for validation status
 }) => {
-  // Convert value to boolean if it's a string
   const isChecked =
     typeof value === "string" ? value === "true" : Boolean(value);
 
+  // Validate on mount and value change
+  React.useEffect(() => {
+    if (required && onValidationChange) {
+      const isValid = isChecked;
+      onValidationChange(isValid);
+    }
+  }, [isChecked, required, onValidationChange]);
+
   const handleChange = (event) => {
-    // Pass the boolean value directly
     onChange(event.target.checked);
   };
 
@@ -56,13 +63,19 @@ const CustomCheckbox = ({
             disabled={disabled}
             required={required}
             color={error ? "error" : "primary"}
-            className="shadow-sm hover:shadow-md transition-shadow duration-200"
           />
         }
-        label={label}
+        label={
+          <span>
+            {label}
+            {required && (
+              <span style={{ color: error ? "#d32f2f" : "inherit" }}>*</span>
+            )}
+          </span>
+        }
       />
+      {error && required && !isChecked && <p>This field is required</p>}
     </CheckboxWrapper>
   );
 };
-
 export default CustomCheckbox;

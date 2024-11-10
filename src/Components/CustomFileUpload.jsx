@@ -32,19 +32,44 @@ const UploadWrapper = styled("div")(({ theme }) => ({
 
 const CustomFileUpload = ({
   onChange,
-  accept,
   disabled,
   label = "Upload File",
   multiple = false,
+  onValidationChange,
 }) => {
   const [fileName, setFileName] = React.useState("");
+  const [error, setError] = React.useState("");
+
+  const validateFile = (file) => {
+    const allowedTypes = ["image/png"];
+    return allowedTypes.includes(file.type);
+  };
 
   const handleChange = (event) => {
     const files = event.target.files;
+    let isValid = true;
+
     if (files && files.length > 0) {
-      setFileName(multiple ? `${files.length} files selected` : files[0].name);
+      const fileArray = Array.from(files);
+      const invalidFiles = fileArray.filter((file) => !validateFile(file));
+
+      if (invalidFiles.length > 0) {
+        setError("Only PNG files are allowed");
+        isValid = false;
+      } else {
+        setError("");
+        const newFileName = multiple
+          ? `${files.length} files selected`
+          : files[0].name;
+        setFileName(newFileName);
+        // Pass the file name instead of the event
+        onChange(newFileName);
+      }
     }
-    onChange(event);
+
+    if (onValidationChange) {
+      onValidationChange(isValid);
+    }
   };
 
   return (
@@ -53,7 +78,7 @@ const CustomFileUpload = ({
         variant="outlined"
         component="label"
         disabled={disabled}
-        className="upload-button shadow-sm hover:shadow-md transition-shadow duration-200"
+        className="upload-button"
         startIcon={<CloudUploadIcon />}
       >
         {label}
@@ -61,13 +86,13 @@ const CustomFileUpload = ({
           type="file"
           hidden
           onChange={handleChange}
-          accept={accept}
+          accept=".png,.jpg,.jpeg"
           multiple={multiple}
         />
       </Button>
       {fileName && <div className="file-name">{fileName}</div>}
+      {error && <p error>{error}</p>}
     </UploadWrapper>
   );
 };
-
 export default CustomFileUpload;

@@ -134,6 +134,7 @@ const componentTypes = {
     component: CustomFileUpload,
     defaultProps: {
       label: "Upload File",
+      value: "", // Initialize with empty string
     },
   },
 };
@@ -143,13 +144,17 @@ const FormBuilder = () => {
   const [finalFormData, setFinalFormData] = useState({});
   const [submittedData, setSubmittedData] = useState({});
   const [selectedField, setSelectedField] = useState(null);
+  const [validationStatus, setValidationStatus] = useState({});
+  const [visibilityConditions, setVisibilityConditions] = useState({});
 
   const generateId = () => `field_${Date.now()}`;
 
-  const addField = (type) => {
+  // Add a new field with optional visibility condition
+  const addField = (type, condition = null) => {
     const newField = {
       id: generateId(),
       ...componentTypes[type],
+      condition, // Add the condition to control visibility
     };
     setFormFields([...formFields, newField]);
   };
@@ -166,6 +171,39 @@ const FormBuilder = () => {
       ...prevData,
       [id]: value,
     }));
+
+    // Check conditions for showing or hiding fields
+    updateFieldVisibility(id, value);
+  };
+
+  const updateFieldVisibility = (fieldId, value) => {
+    setFormFields((prevFields) =>
+      prevFields.map((field) => {
+        if (field.condition && field.condition.fieldId === fieldId) {
+          const shouldShow = field.condition.check(value);
+          return { ...field, isVisible: shouldShow };
+        }
+        return field;
+      })
+    );
+  };
+
+  const handleValidationChange = (fieldId, isValid) => {
+    setValidationStatus((prev) => ({
+      ...prev,
+      [fieldId]: isValid,
+    }));
+  };
+
+  const formatFieldValue = (field, value) => {
+    switch (field.type) {
+      case "checkbox":
+        return value ? "Yes" : "No";
+      case "datePicker":
+        return value ? formatDateString(value) : "";
+      default:
+        return value;
+    }
   };
 
   const formatDateString = (dateStr) => {
@@ -180,22 +218,26 @@ const FormBuilder = () => {
     });
   };
 
-  const formatFieldValue = (field, value) => {
-    switch (field.type) {
-      case "checkbox":
-        return value ? "Yes" : "No";
-      case "datePicker":
-        return value ? formatDateString(value) : "";
-      default:
-        return value;
-    }
-  };
-
   const handleSubmit = () => {
+    const isFormValid = Object.values(validationStatus).every(
+      (status) => status !== false
+    );
+
+    if (!isFormValid) {
+      setFormFields((fields) =>
+        fields.map((field) => ({
+          ...field,
+          error: !validationStatus[field.id],
+        }))
+      );
+      return;
+    }
+
     const formValues = {};
     formFields.forEach((field) => {
       const userValue = finalFormData[field.id];
       if (userValue !== undefined && userValue !== "") {
+        // For file uploads, we already have the file name stored
         formValues[field.label] = formatFieldValue(field, userValue);
       }
     });
@@ -268,12 +310,14 @@ const FormBuilder = () => {
           Final Form Preview
         </Typography>
         {formFields.map((field) => (
-          <Box key={field.id} className="p-2 my-2 rounded-lg">
-            <Typography variant="subtitle2">{field.label}</Typography>
+          <Box key={field.id}>
             {React.createElement(field.component, {
               ...field.defaultProps,
               value: finalFormData[field.id] || field.defaultProps.value,
               onChange: (value) => handleFinalFormChange(field.id, value),
+              error: !validationStatus[field.id],
+              onValidationChange: (isValid) =>
+                handleValidationChange(field.id, isValid),
             })}
           </Box>
         ))}
