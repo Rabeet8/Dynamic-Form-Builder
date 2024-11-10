@@ -77,7 +77,6 @@ const componentTypes = {
     icon: <ViewStream />,
     label: "Section",
     defaultProps: {
-      label: "New Section",
       fields: [],
     },
   },
@@ -87,7 +86,6 @@ const componentTypes = {
     label: "Text Field",
     component: CustomTextField,
     defaultProps: {
-      label: "New Text Field",
       value: "",
     },
   },
@@ -97,7 +95,6 @@ const componentTypes = {
     label: "Dropdown",
     component: CustomDropdown,
     defaultProps: {
-      label: "New Dropdown",
       value: "",
       options: [
         { value: "option1", label: "Option 1" },
@@ -111,7 +108,6 @@ const componentTypes = {
     label: "Radio Button",
     component: CustomRadioButton,
     defaultProps: {
-      label: "New Radio Group",
       value: "",
       options: [
         { value: "option1", label: "Option 1" },
@@ -125,7 +121,6 @@ const componentTypes = {
     label: "Checkbox",
     component: CustomCheckbox,
     defaultProps: {
-      label: "New Checkbox",
       checked: false,
     },
   },
@@ -135,7 +130,6 @@ const componentTypes = {
     label: "Date Picker",
     component: CustomDatePicker,
     defaultProps: {
-      label: "New Date Picker",
       value: null,
     },
   },
@@ -154,7 +148,6 @@ const componentTypes = {
     label: "File Upload",
     component: CustomFileUpload,
     defaultProps: {
-      label: "Upload File",
       value: "",
     },
   },
